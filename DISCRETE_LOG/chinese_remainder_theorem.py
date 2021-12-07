@@ -1,7 +1,7 @@
 from sympy import mod_inverse
 
 """
-Cinese remainder theorem : 
+Chinese remainder theorem : 
 
 Let n be a random number
 
