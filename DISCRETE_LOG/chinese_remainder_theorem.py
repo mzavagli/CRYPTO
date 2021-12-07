@@ -34,13 +34,10 @@ def solve_crt_n(dlogs, n_list):
     n = 1
     for i in n_list:
         n *= i
-    # print n
     x = 0
     for i in range(len(dlogs)):
         Ni = n // (n_list[i])
-        # print Ni
         xi = mod_inverse(Ni, (n_list[i]))
-        # print xi
         x += dlogs[i] * Ni * xi
     return x % n
 
@@ -54,13 +51,10 @@ def solve_crt_f(dlogs, factors):
     n = 1
     for i in factors:
         n *= (i[0]**i[1])
-    # print n
     x = 0
     for i in range(len(dlogs)):
         Ni = n // (factors[i][0]**factors[i][1])
-        # print yi
         xi = mod_inverse(Ni, (factors[i][0]**factors[i][1]))
-        # print zi
         x += dlogs[i] * Ni * xi
     return x % n
 
