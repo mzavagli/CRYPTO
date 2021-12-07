@@ -1,47 +1,27 @@
 """
-Because I'm f*cking tired of those scripts that don't work
+RSA decrypt bc I tired of writting this same exact shit again and again in each CTF
 """
 
 from binascii import hexlify, unhexlify, Error
 from random import randint
 
+def calculate_n(p, n):
+    return p * q
 
-class RSAObj:
-    def __init__(self, p=None, q=None, n=None, d=None, e=0x10001):
-        # Fill up info there ma caille
-        self.p = p
-        self.q = q
-        self.n = n
-        self.d = d
-        self.phi = None
-        self.e = e
+def calculate_d(phi, e):
+    return pow(e, -1, phi)
 
-    def calculate_n(self):
-        if (self.p is not None) and (self.q is not None):
-            self.n = self.p * self.q
+def calculate_phi(p, q):
+    return (p - 1) * (q - 1)
 
-    def calculate_d(self):
-        if (self.phi is not None) and (self.e is not None):
-            self.d = pow(self.e, -1, self.phi)
+def decrypt(ct, d, n):
+    return pow(ct, d, n)
 
-    def calculate_phi(self):
-        if (self.q is not None) and (self.p is not None):
-            self.phi = (self.p - 1) * (self.q - 1)
+def encrypt(pt, e, n):
+    return pow(pt, e, n)
 
-    def display_info(self):
-        print(
-            f"> p : {self.p}\n> q : {self.q}\n> n : {self.n}\n> d : {self.d}\n> e : {self.e}\n> phi : {self.phi}"
-        )
-
-    def decrypt(self, c):
-        return pow(c, self.d, self.n)
-
-    def encrypt(self, p):
-        return pow(p, self.e, self.n)
-
-    def int_to_latin(self, p):
-        return unhexlify(hex(p)[2:]).decode("latin")
-
+def int_to_latin(pt):
+    return unhexlify(hex(pt)[2:]).decode("latin")
 
 def main():
 
@@ -52,52 +32,46 @@ def main():
     n = 0x219C75AEE23AEE202503EC5025B40AC9E18C546E6EF1965B4B
     p = 411481484074428595727757344849
     q = 512734463417573692484064589531
-    d = None  # 0x04cd356220518fbb73008f79284a88c0ea3ee05718c119e097
     e = 7
+    
+    ct = 8711853753483579701322290941915765213212086928701373860451
+    
+    d = None  # 0x04cd356220518fbb73008f79284a88c0ea3ee05718c119e097
+    
+    if n is None:
+        n = calculate_n(p, q)
 
-    c = 8711853753483579701322290941915765213212086928701373860451
+    if d is None:
+        phi = calculate_phi(p, q)
+        d = calculate_d(phi, e)
 
-    rsa = RSAObj(p, q, n, d, e)
+    assert (e * d) % phi == 1
 
-    # check private key presence
-    if ((rsa.p is None) or (rsa.q is None)) and (rsa.d is None):
-        print("Not enougth info")
-        return 0
-
-    if rsa.n is None:
-        if (rsa.p is None) or (rsa.q is None):
-            print("Not enougth info")
-            return 0
-        else:
-            rsa.calculate_n()
-
-    if rsa.d is None:
-        rsa.calculate_phi()
-        rsa.calculate_d()
-
-    assert (rsa.e * rsa.d) % rsa.phi == 1
-
-    rsa.display_info()
+    
+    print(
+        f"> p : {p}\n> q : {q}\n> n : {n}\n> d : {d}\n> e : {e}\n> phi : {phi}"
+    )
 
     # private key test
-    test_p = randint(1, rsa.n)
-    test_c = rsa.encrypt(test_p)
-    assert rsa.decrypt(test_c) == test_p
+    test_pt = randint(1, n)
+    test_ct = encrypt(test_pt, e, n)
+    assert decrypt(test_ct, d, n) == test_pt
 
     # read file
-    if c is None:
+    if ct is None:
         with open(FILENAME, "rb") as infile:
-            c = infile.read()
-            c = int(hexlify(c), 16)
-
-    # decrypt
-    p = rsa.int_to_latin(rsa.decrypt(c))
-
-    print("---------------- RESULTS ----------------")
+            ct = infile.read()
+            ct = int(hexlify(ct), 16)
+    
+    pt_int = decrypt(ct, d, n)
+    
     try:
-        print(p)  # if odd-string length -> add '0' in front of the hex
+        pt = int_to_latin(pt_int)  # if odd-string length -> add '0' in front of the hex
     except Error:
         print(f"Probably odd-length hex")
+
+    print("---------------- RESULTS ----------------")    
+    print(pt)
 
 
 if __name__ == "__main__":
