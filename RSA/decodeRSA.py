@@ -79,12 +79,11 @@ def main():
 
     rsa.display_info()
 
-    """
     # private key test
-    test_p = randint(1, 10**100)
+    test_p = randint(1, rsa.n)
     test_c = rsa.encrypt(test_p)
-    assert rsa.decrypt(test_c) == test_p  
-    """
+    assert rsa.decrypt(test_c) == test_p
+
     # read file
     if c is None:
         with open(FILENAME, "rb") as infile:
