@@ -2,11 +2,11 @@ import socket
 from time import time
 import struct
 
-HOST = "challenge01.root-me.org"
-PORT = 51015
+HOST = ""
+PORT = 00000
 INIT_RECV = 1
 BUF_SIZE = 64
-ALPHABET = "0123456789-"
+ALPHABET = ""
 KEY_SIZE = 12
 
 
